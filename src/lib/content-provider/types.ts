@@ -5,9 +5,20 @@ export interface ContentProviderTree {
   rootDirectories: string[];
 }
 
+export interface FileRevision {
+  /** ISO-8601 commit time. */
+  committedAt: string;
+  content: string;
+}
+
 export interface ContentProvider {
   getTree(): Promise<ContentProviderTree>;
   getFileContent(filePath: string): Promise<string>;
+  /**
+   * Past revisions of one file, oldest first. Used for agile flow metrics.
+   * Optional: missing when the source cannot read history.
+   */
+  getFileRevisions?(filePath: string, limit: number): Promise<FileRevision[]>;
   /** Verify that the root path exists and is accessible. Throws if not. */
   validateRoot(): Promise<void>;
   /**

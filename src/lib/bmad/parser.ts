@@ -5,6 +5,7 @@ import { parseEpics } from "./parse-epics";
 import { parseEpicFile } from "./parse-epic-file";
 import { parseStory } from "./parse-story";
 import { correlate, computeProjectStats } from "./correlate";
+import { loadFlowMetrics } from "./compute-flow-metrics";
 import { buildFileTree, compareIds, normalizeStoryStatus } from "./utils";
 import { resolveBmadOutputDir } from "./parse-config";
 import { parseEpicFolderName } from "./parse-epic-folder";
@@ -313,6 +314,11 @@ export async function getBmadProject(
     docsFolderName,
   });
 
+  const flowMetrics = await loadFlowMetrics(
+    provider.getFileRevisions?.bind(provider),
+    sprintStatusPath,
+  );
+
   return {
     owner,
     repo,
@@ -330,6 +336,7 @@ export async function getBmadProject(
       totalFiles,
       successfulFiles,
     },
+    flowMetrics,
     ...stats,
   };
 }

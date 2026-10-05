@@ -5,8 +5,11 @@ import { BmadProject, Epic, SprintStatus, StoryDetail, EpicStatus } from "./type
  * a human-readable title: "Project Initialization".
  */
 function formatStoryTitle(slug: string): string {
-  // Remove the leading "N-N-" or "alpha-N-" prefix
-  const withoutPrefix = slug.replace(/^(?:\d+|[a-z][a-z0-9_-]*)-\d+-/i, "");
+  // Remove the leading "N-N-", "N-Na-", or "alpha-N-" prefix
+  const withoutPrefix = slug.replace(
+    /^(?:\d+-\d+[A-Za-z]?-|(?:[a-z][a-z0-9_-]*)-\d+-)/i,
+    "",
+  );
   if (!withoutPrefix || withoutPrefix === slug) return slug;
   return withoutPrefix
     .split("-")
@@ -70,7 +73,9 @@ export function correlate(
 
   const enrichedEpics = epics.map((epic) => {
     const epicStories = mutableStories.filter(
-      (s) => s.epicId === epic.id || epic.stories.includes(s.id)
+      (s) =>
+        (s.epicId === epic.id || epic.stories.includes(s.id)) &&
+        s.status !== "cancelled",
     );
     const completed = epicStories.filter((s) => s.status === "done").length;
     const total = epicStories.length;
@@ -122,16 +127,32 @@ export function correlate(
   return { epics: enrichedEpics, stories: resultStories };
 }
 
-export function computeProjectStats(project: Omit<BmadProject, "totalStories" | "completedStories" | "inProgressStories" | "progressPercent">): {
+export function computeProjectStats(
+  project: Omit<
+    BmadProject,
+    | "totalStories"
+    | "completedStories"
+    | "inProgressStories"
+    | "progressPercent"
+    | "flowMetrics"
+  >,
+): {
   totalStories: number;
   completedStories: number;
   inProgressStories: number;
   progressPercent: number;
 } {
-  const sprintTotal = project.sprintStatus?.stories.length ?? 0;
-  const total = Math.max(project.stories.length, sprintTotal);
+  const sprintActive =
+    project.sprintStatus?.stories.filter((s) => s.status !== "cancelled")
+      .length ?? 0;
+  const storyActive = project.stories.filter(
+    (s) => s.status !== "cancelled",
+  ).length;
+  const total = Math.max(storyActive, sprintActive);
   const completed = project.stories.filter((s) => s.status === "done").length;
-  const inProgress = project.stories.filter((s) => s.status === "in-progress").length;
+  const inProgress = project.stories.filter(
+    (s) => s.status === "in-progress",
+  ).length;
 
   return {
     totalStories: total,

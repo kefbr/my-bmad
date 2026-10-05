@@ -45,6 +45,30 @@ development_status:
       expect(result!.sprintStatus.stories).toHaveLength(1);
     });
 
+    it("parses lettered split stories and cancelled status", () => {
+      const content = `
+development_status:
+  3-16A-publicar-contratos: done
+  10-1-import: cancelled
+`;
+      const result = parseSprintStatus(content);
+      expect(result).not.toBeNull();
+      expect(result!.sprintStatus.stories).toEqual([
+        {
+          id: "3.16A",
+          title: "3-16A-publicar-contratos",
+          status: "done",
+          epicId: "3",
+        },
+        {
+          id: "10.1",
+          title: "10-1-import",
+          status: "cancelled",
+          epicId: "10",
+        },
+      ]);
+    });
+
     it("parses alphanumeric epic and story keys", () => {
       const content = `
 development_status:
