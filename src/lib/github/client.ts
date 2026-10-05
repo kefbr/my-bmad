@@ -156,3 +156,67 @@ export function getCachedUserRawContent(
   )();
 }
 
+export interface UserFileRevision {
+  committedAt: string;
+  content: string;
+}
+
+/**
+ * Walk recent commits that touched `path` and return file contents oldest-first.
+ */
+export async function getUserFileRevisions(
+  octokit: UserOctokit,
+  owner: string,
+  repo: string,
+  branch: string,
+  path: string,
+  limit: number,
+): Promise<UserFileRevision[]> {
+  const { data: commits } = await octokit.rest.repos.listCommits({
+    owner,
+    repo,
+    sha: branch,
+    path,
+    per_page: Math.min(Math.max(limit, 1), 100),
+  });
+
+  const newestFirst = commits.slice(0, limit);
+  const revisions: UserFileRevision[] = [];
+
+  for (const commit of newestFirst) {
+    const sha = commit.sha;
+    const committedAt =
+      commit.commit.committer?.date ??
+      commit.commit.author?.date ??
+      null;
+    if (!sha || !committedAt) continue;
+    try {
+      const content = await getUserRawContent(octokit, owner, repo, sha, path);
+      revisions.push({ committedAt, content });
+    } catch {
+      // File may be missing at this commit (rename/delete); skip.
+    }
+  }
+
+  return revisions.reverse();
+}
+
+export function getCachedUserFileRevisions(
+  octokit: UserOctokit,
+  userId: string,
+  owner: string,
+  repo: string,
+  branch: string,
+  path: string,
+  limit: number,
+) {
+  return unstable_cache(
+    () => getUserFileRevisions(octokit, owner, repo, branch, path, limit),
+    [`file-revisions`, userId, owner, repo, branch, path, String(limit)],
+    {
+      revalidate: CACHE_TTL,
+      tags: [repoTag(owner, repo), fileTag(owner, repo, path)],
+    },
+  )();
+}
+

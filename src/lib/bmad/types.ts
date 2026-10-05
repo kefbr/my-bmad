@@ -5,6 +5,7 @@ export type StoryStatus =
   | "blocked"
   | "ready-for-dev"
   | "backlog"
+  | "cancelled"
   | "unknown";
 
 export type EpicStatus = "done" | "in-progress" | "not-started";
@@ -96,6 +97,27 @@ export interface ParseHealthReport {
   successfulFiles: number;
 }
 
+export interface StoryTiming {
+  id: string;
+  title: string;
+  cycleMs: number;
+  leadMs: number;
+}
+
+/** Agile flow numbers derived from sprint-status.yaml history. */
+export interface FlowMetrics {
+  /** Stories with both a start and a finish observed in history. */
+  sampleSize: number;
+  averageCycleMs: number | null;
+  averageLeadMs: number | null;
+  fastest: StoryTiming | null;
+  slowest: StoryTiming | null;
+  /** Stories that reached done in the last 7 days. */
+  throughput7d: number;
+  /** Observed completions divided by observed weeks of history. */
+  velocityPerWeek: number | null;
+}
+
 export interface BmadProject {
   owner: string;
   repo: string;
@@ -113,4 +135,5 @@ export interface BmadProject {
   completedStories: number;
   inProgressStories: number;
   progressPercent: number;
+  flowMetrics?: FlowMetrics | null;
 }

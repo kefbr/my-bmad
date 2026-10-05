@@ -34,7 +34,9 @@ function getSprintProgress(project: {
   sprintStatus: { stories: { status: string }[] } | null;
 }): number | null {
   if (!project.sprintStatus) return null;
-  const stories = project.sprintStatus.stories;
+  const stories = project.sprintStatus.stories.filter(
+    (s) => s.status !== "cancelled",
+  );
   if (stories.length === 0) return null;
   const done = stories.filter((s) => s.status === "done").length;
   return Math.round((done / stories.length) * 100);
@@ -116,11 +118,18 @@ export default async function RepoOverviewPage({ params }: RepoPageProps) {
         sprintProgress={getSprintProgress(project)}
       />
 
-      {/* Velocity metrics */}
+      {/* Velocity + agile flow metrics */}
       {project.sprintStatus && (
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold">Velocity Metrics</h2>
-          <VelocityMetrics sprintStatus={project.sprintStatus} />
+          <h2 className="text-lg font-semibold">Flow &amp; Velocity</h2>
+          <p className="text-sm text-muted-foreground">
+            Cycle/lead times come from sprint-status.yaml history. WIP and
+            lifecycle counts use the current sprint file.
+          </p>
+          <VelocityMetrics
+            sprintStatus={project.sprintStatus}
+            flowMetrics={project.flowMetrics}
+          />
         </section>
       )}
 

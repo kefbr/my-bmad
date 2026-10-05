@@ -1,8 +1,13 @@
-import type { ContentProvider, ContentProviderTree } from "./types";
+import type {
+  ContentProvider,
+  ContentProviderTree,
+  FileRevision,
+} from "./types";
 import type { UserOctokit } from "@/lib/github/client";
 import {
   getCachedUserRepoTree,
   getCachedUserRawContent,
+  getCachedUserFileRevisions,
 } from "@/lib/github/client";
 
 export class GitHubProvider implements ContentProvider {
@@ -45,6 +50,21 @@ export class GitHubProvider implements ContentProvider {
       this.repo,
       this.branch,
       filePath,
+    );
+  }
+
+  async getFileRevisions(
+    filePath: string,
+    limit: number,
+  ): Promise<FileRevision[]> {
+    return getCachedUserFileRevisions(
+      this.octokit,
+      this.userId,
+      this.owner,
+      this.repo,
+      this.branch,
+      filePath,
+      limit,
     );
   }
 

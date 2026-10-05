@@ -1,8 +1,16 @@
 import fs from "node:fs/promises";
 import { constants } from "node:fs";
 import path from "node:path";
-import type { ContentProvider, ContentProviderTree } from "./types";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+import type {
+  ContentProvider,
+  ContentProviderTree,
+  FileRevision,
+} from "./types";
 import { LOCAL_PROVIDER_DEFAULTS } from "./types";
+
+const execFileAsync = promisify(execFile);
 
 interface LocalProviderOptions {
   maxFileSizeBytes?: number;
@@ -206,6 +214,63 @@ export class LocalProvider implements ContentProvider {
     }
 
     return fs.readFile(fullPath, "utf-8");
+  }
+
+  async getFileRevisions(
+    filePath: string,
+    limit: number,
+  ): Promise<FileRevision[]> {
+    this.assertSafePath(filePath);
+    const gitPath = filePath.split(path.sep).join("/");
+    const max = Math.min(Math.max(limit, 1), 100);
+
+    try {
+      const { stdout } = await execFileAsync(
+        "git",
+        [
+          "-C",
+          this.resolvedRoot,
+          "log",
+          "--follow",
+          `--max-count=${max}`,
+          "--pretty=format:%H\t%cI",
+          "--",
+          gitPath,
+        ],
+        { windowsHide: true, maxBuffer: 2 * 1024 * 1024 },
+      );
+
+      const lines = stdout
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+      const revisions: FileRevision[] = [];
+
+      for (const line of lines) {
+        const tab = line.indexOf("\t");
+        if (tab < 0) continue;
+        const hash = line.slice(0, tab);
+        const committedAt = line.slice(tab + 1);
+        try {
+          const shown = await execFileAsync(
+            "git",
+            ["-C", this.resolvedRoot, "show", `${hash}:${gitPath}`],
+            {
+              windowsHide: true,
+              maxBuffer: this.maxFileSizeBytes,
+              encoding: "utf8",
+            },
+          );
+          revisions.push({ committedAt, content: shown.stdout });
+        } catch {
+          // Missing at this commit; skip.
+        }
+      }
+
+      return revisions.reverse();
+    } catch {
+      return [];
+    }
   }
 
   /**

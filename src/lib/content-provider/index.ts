@@ -1,4 +1,8 @@
-export type { ContentProvider, ContentProviderTree } from "./types";
+export type {
+  ContentProvider,
+  ContentProviderTree,
+  FileRevision,
+} from "./types";
 export { LOCAL_PROVIDER_DEFAULTS } from "./types";
 export { GitHubProvider } from "./github-provider";
 export { LocalProvider } from "./local-provider";
