@@ -33,6 +33,36 @@ function formatDuration(ms: number | null | undefined): string {
   return `${Math.round(days)}d`;
 }
 
+const LINEAR_B_BENCHMARKS =
+  "https://linearb.io/blog/software-development-metrics-guide";
+const DORA_2024 = "https://dora.dev/research/2024/dora-report/";
+const PROKANBAN_WIP =
+  "https://prokanban.org/blog/dont-just-limit-wip-optimize-it";
+const SCRUM_GUIDE = "https://scrumguides.org/scrum-guide.html";
+const KANBAN_GUIDE = "https://kanbanguides.org/english/";
+
+function MarketNote({
+  children,
+  href,
+  title,
+}: {
+  children: string;
+  href: string;
+  title: string;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      title={title}
+      className="underline decoration-muted-foreground/40 underline-offset-2 hover:text-foreground"
+    >
+      {children}
+    </a>
+  );
+}
+
 function storyLabel(id: string, title: string): string {
   const slug = title
     .replace(/^(?:\d+-\d+[A-Za-z]?-|(?:[a-z][a-z0-9_-]*)-\d+-)/i, "")
@@ -60,11 +90,14 @@ export function VelocityMetrics({
   const sample = flowMetrics?.sampleSize ?? 0;
   const hasTiming = sample > 0;
 
+  const cardClass = "h-72 overflow-hidden";
+
   return (
     <div className="space-y-4">
-      <StaggeredList className="grid gap-4 grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
-        <StaggeredItem>
+      <StaggeredList className="grid items-stretch gap-4 grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
+        <StaggeredItem className="h-full">
           <StatsCard
+            className={cardClass}
             title="Velocity"
             value={
               flowMetrics?.velocityPerWeek != null
@@ -78,19 +111,43 @@ export function VelocityMetrics({
                 : `${totalStories} active stories`
             }
             color="success"
+            footnote={
+              <>
+                No cross-team story rate. Elite &gt;2.25 PRs/dev/week —{" "}
+                <MarketNote
+                  href={LINEAR_B_BENCHMARKS}
+                  title="LinearB 2025 benchmarks from 6.1M pull requests. Merge frequency is pull requests per developer per week, not BMAD stories."
+                >
+                  LinearB 2025
+                </MarketNote>
+              </>
+            }
           />
         </StaggeredItem>
-        <StaggeredItem>
+        <StaggeredItem className="h-full">
           <StatsCard
+            className={cardClass}
             title="WIP"
             value={wipCount}
             icon={Activity}
             description="In progress + review"
             color="info"
+            footnote={
+              <>
+                About ⅔–¾ of the team —{" "}
+                <MarketNote
+                  href={PROKANBAN_WIP}
+                  title="ProKanban Featureban simulations: a WIP limit around two-thirds to three-quarters of the team (example: 6 items for 9 people)."
+                >
+                  ProKanban
+                </MarketNote>
+              </>
+            }
           />
         </StaggeredItem>
-        <StaggeredItem>
+        <StaggeredItem className="h-full">
           <StatsCard
+            className={cardClass}
             title="Throughput 7d"
             value={flowMetrics?.throughput7d ?? "—"}
             icon={Zap}
@@ -100,10 +157,22 @@ export function VelocityMetrics({
                 : "Needs sprint history"
             }
             color="violet"
+            footnote={
+              <>
+                Elite &gt;2.25 merges/dev/week —{" "}
+                <MarketNote
+                  href={LINEAR_B_BENCHMARKS}
+                  title="LinearB 2025 elite merge frequency is more than 2.25 pull requests merged per developer per week."
+                >
+                  LinearB 2025
+                </MarketNote>
+              </>
+            }
           />
         </StaggeredItem>
-        <StaggeredItem>
+        <StaggeredItem className="h-full">
           <StatsCard
+            className={cardClass}
             title="Avg cycle time"
             value={
               hasTiming ? formatDuration(flowMetrics?.averageCycleMs) : "—"
@@ -115,10 +184,29 @@ export function VelocityMetrics({
                 : "In progress → done"
             }
             color="primary"
+            footnote={
+              <>
+                Elite &lt;26h code→prod —{" "}
+                <MarketNote
+                  href={LINEAR_B_BENCHMARKS}
+                  title="LinearB 2025 elite cycle time is under 26 hours from first commit to production. This card measures story status, from in progress to done."
+                >
+                  LinearB 2025
+                </MarketNote>
+                . Lead &lt;1 day —{" "}
+                <MarketNote
+                  href={DORA_2024}
+                  title="DORA 2024 elite change lead time is less than one day from commit to production."
+                >
+                  DORA 2024
+                </MarketNote>
+              </>
+            }
           />
         </StaggeredItem>
-        <StaggeredItem>
+        <StaggeredItem className="h-full">
           <StatsCard
+            className={cardClass}
             title="Fastest done"
             value={
               hasTiming ? formatDuration(flowMetrics?.fastest?.cycleMs) : "—"
@@ -130,10 +218,22 @@ export function VelocityMetrics({
                 : "Shortest cycle"
             }
             color="success"
+            footnote={
+              <>
+                Elite cycle &lt;26h code→prod —{" "}
+                <MarketNote
+                  href={LINEAR_B_BENCHMARKS}
+                  title="LinearB 2025 elite cycle time is under 26 hours from code to production."
+                >
+                  LinearB 2025
+                </MarketNote>
+              </>
+            }
           />
         </StaggeredItem>
-        <StaggeredItem>
+        <StaggeredItem className="h-full">
           <StatsCard
+            className={cardClass}
             title="Slowest done"
             value={
               hasTiming ? formatDuration(flowMetrics?.slowest?.cycleMs) : "—"
@@ -145,31 +245,67 @@ export function VelocityMetrics({
                 : "Longest cycle"
             }
             color="warning"
+            footnote={
+              <>
+                Needs focus above 167h code→prod —{" "}
+                <MarketNote
+                  href={LINEAR_B_BENCHMARKS}
+                  title="LinearB 2025 marks cycle time above 167 hours, from code to production, as needs focus."
+                >
+                  LinearB 2025
+                </MarketNote>
+              </>
+            }
           />
         </StaggeredItem>
       </StaggeredList>
 
-      <StaggeredList className="grid gap-4 grid-cols-2 md:grid-cols-4">
-        <StaggeredItem>
+      <StaggeredList className="grid items-stretch gap-4 grid-cols-2 md:grid-cols-4">
+        <StaggeredItem className="h-full">
           <StatsCard
+            className={cardClass}
             title="Ready for dev"
             value={readyCount}
             icon={Gauge}
             description="Queued for build"
             color="info"
+            footnote={
+              <>
+                Enough for the current sprint —{" "}
+                <MarketNote
+                  href={SCRUM_GUIDE}
+                  title="Scrum Guide: the Sprint Backlog is the plan for the current Sprint. There is no published market count for a ready queue."
+                >
+                  Scrum Guide
+                </MarketNote>
+              </>
+            }
           />
         </StaggeredItem>
-        <StaggeredItem>
+        <StaggeredItem className="h-full">
           <StatsCard
+            className={cardClass}
             title="Backlog"
             value={backlogCount}
             icon={Gauge}
             description="Not started"
             color="primary"
+            footnote={
+              <>
+                No fixed market size; keep it ordered —{" "}
+                <MarketNote
+                  href={SCRUM_GUIDE}
+                  title="Scrum Guide: the Product Backlog is an ordered list. There is no published standard length."
+                >
+                  Scrum Guide
+                </MarketNote>
+              </>
+            }
           />
         </StaggeredItem>
-        <StaggeredItem>
+        <StaggeredItem className="h-full">
           <StatsCard
+            className={cardClass}
             title="Blocked"
             value={blockedCount}
             icon={AlertTriangle}
@@ -177,15 +313,38 @@ export function VelocityMetrics({
               blockedCount > 0 ? "Attention required" : "No blockers"
             }
             color="destructive"
+            footnote={
+              <>
+                Keep blockers at zero —{" "}
+                <MarketNote
+                  href={KANBAN_GUIDE}
+                  title="Kanban Guide: visualize blocked work and limit work in progress. Zero blockers is a flow practice, not a surveyed percentile."
+                >
+                  Kanban Guide
+                </MarketNote>
+              </>
+            }
           />
         </StaggeredItem>
-        <StaggeredItem>
+        <StaggeredItem className="h-full">
           <StatsCard
+            className={cardClass}
             title="Done"
             value={doneCount}
             icon={TrendingUp}
             description={`${totalStories} in active scope`}
             color="success"
+            footnote={
+              <>
+                No market total. Sprint accuracy elite &gt;80% —{" "}
+                <MarketNote
+                  href={LINEAR_B_BENCHMARKS}
+                  title="LinearB 2025 elite planning accuracy is above 80% of planned sprint work delivered. Cumulative done count has no cross-team benchmark."
+                >
+                  LinearB 2025
+                </MarketNote>
+              </>
+            }
           />
         </StaggeredItem>
       </StaggeredList>

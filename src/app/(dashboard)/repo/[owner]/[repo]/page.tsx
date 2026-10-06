@@ -124,7 +124,9 @@ export default async function RepoOverviewPage({ params }: RepoPageProps) {
           <h2 className="text-lg font-semibold">Flow &amp; Velocity</h2>
           <p className="text-sm text-muted-foreground">
             Cycle/lead times come from sprint-status.yaml history. WIP and
-            lifecycle counts use the current sprint file.
+            lifecycle counts use the current sprint file. The line under each
+            card is a published market reference; several use a different unit
+            than the number above.
           </p>
           <VelocityMetrics
             sprintStatus={project.sprintStatus}
