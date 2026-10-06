@@ -5,6 +5,12 @@ import { ProgressRing } from "@/components/shared/progress-ring";
 import { ProjectStatsGrid } from "@/components/dashboard/project-stats-grid";
 import { EpicsList } from "@/components/dashboard/epics-list";
 import { VelocityMetrics } from "@/components/dashboard/velocity-metrics";
+import { SprintPlanBoard } from "@/components/dashboard/sprint-plan-board";
+import {
+  buildCockpitSprints,
+  formatSprintDate,
+  usesCockpitSprintPlan,
+} from "@/lib/bmad/sprint-plan";
 import { KeyArtifactsCard } from "@/components/dashboard/key-artifacts-card";
 import { GitBranch, Clock, FolderOpen } from "lucide-react";
 import { formatRelativeTime } from "@/lib/utils";
@@ -56,6 +62,21 @@ export default async function RepoOverviewPage({ params }: RepoPageProps) {
   if (!project) return notFound();
 
   const planningArtifacts = extractPlanningArtifacts(project.fileTree);
+  const today = new Date().toLocaleDateString("en-CA", {
+    timeZone: "America/Sao_Paulo",
+  });
+  const sprintPlan =
+    project.sprintStatus &&
+    usesCockpitSprintPlan({
+      owner,
+      repo: repoName,
+      stories: project.sprintStatus.stories,
+    })
+      ? buildCockpitSprints(project.sprintStatus.stories, today)
+      : null;
+  const currentSprint = sprintPlan?.find(
+    (sprint) => sprint.calendarState === "current",
+  );
 
   return (
     <div className="space-y-8 pb-8">
@@ -115,8 +136,19 @@ export default async function RepoOverviewPage({ params }: RepoPageProps) {
         totalEpics={project.epics.length}
         totalStories={project.totalStories}
         completedStories={project.completedStories}
-        sprintProgress={getSprintProgress(project)}
+        sprintProgress={
+          currentSprint ? currentSprint.percent : getSprintProgress(project)
+        }
+        sprintCaption={
+          currentSprint
+            ? `Sprint ${currentSprint.definition.number} · ${formatSprintDate(currentSprint.definition.startDate)}–${formatSprintDate(currentSprint.definition.endDate)}`
+            : undefined
+        }
       />
+
+      {sprintPlan && (
+        <SprintPlanBoard sprints={sprintPlan} epics={project.epics} />
+      )}
 
       {/* Velocity + agile flow metrics */}
       {project.sprintStatus && (
