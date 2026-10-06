@@ -7,6 +7,7 @@ interface ProjectStatsGridProps {
   totalStories: number;
   completedStories: number;
   sprintProgress: number | null;
+  sprintCaption?: string;
 }
 
 export function ProjectStatsGrid({
@@ -14,6 +15,7 @@ export function ProjectStatsGrid({
   totalStories,
   completedStories,
   sprintProgress,
+  sprintCaption,
 }: ProjectStatsGridProps) {
   return (
     <StaggeredList className="grid gap-4 grid-cols-2 lg:grid-cols-4">
@@ -51,7 +53,9 @@ export function ProjectStatsGrid({
           icon={Zap}
           color="warning"
           description={
-            sprintProgress !== null ? "Sprint progress" : "No sprint defined"
+            sprintProgress !== null
+              ? (sprintCaption ?? "Sprint progress")
+              : "No sprint defined"
           }
         />
       </StaggeredItem>
