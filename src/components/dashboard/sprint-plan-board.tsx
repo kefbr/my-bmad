@@ -159,13 +159,14 @@ export function SprintPlanBoard({ sprints, epics }: SprintPlanBoardProps) {
       </div>
 
       <div className="overflow-x-auto rounded-xl border">
-        <table className="w-full min-w-[720px] text-sm">
+        <table className="w-full min-w-[880px] text-sm">
           <thead className="bg-muted/40 text-left text-xs text-muted-foreground">
             <tr>
               <th className="px-3 py-2 font-medium">Sprint</th>
               <th className="px-3 py-2 font-medium">Período</th>
               <th className="px-3 py-2 font-medium">Calendário</th>
               <th className="px-3 py-2 font-medium">Concluídas</th>
+              <th className="min-w-44 px-3 py-2 font-medium">Progresso</th>
               <th className="px-3 py-2 font-medium">Escopo</th>
             </tr>
           </thead>
@@ -189,9 +190,30 @@ export function SprintPlanBoard({ sprints, epics }: SprintPlanBoardProps) {
                 </td>
                 <td className="px-3 py-2 align-top whitespace-nowrap">
                   {sprint.done}/{sprint.total}
-                  <span className="ml-1 text-muted-foreground">
-                    ({sprint.percent}%)
-                  </span>
+                </td>
+                <td className="px-3 py-2 align-top">
+                  <div className="flex min-w-40 items-center gap-2">
+                    <div
+                      className="h-2 flex-1 overflow-hidden rounded-full bg-muted"
+                      role="progressbar"
+                      aria-label={`Sprint ${sprint.definition.number}: ${sprint.percent}% concluída`}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={sprint.percent}
+                    >
+                      <div
+                        className={
+                          sprint.percent === 100
+                            ? "h-full rounded-full bg-success"
+                            : "h-full rounded-full bg-primary"
+                        }
+                        style={{ width: `${sprint.percent}%` }}
+                      />
+                    </div>
+                    <span className="w-10 text-right text-xs font-semibold tabular-nums">
+                      {sprint.percent}%
+                    </span>
+                  </div>
                 </td>
                 <td className="px-3 py-2 align-top">
                   <p>{sprint.definition.goal}</p>

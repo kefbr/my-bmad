@@ -16,8 +16,8 @@ export default function LoginPage() {
           registrationEnabled={registrationEnabled}
         />
       </Suspense>
-      <p className="fixed bottom-4 text-xs text-muted-foreground">
-        Made with ❤️ by Hichem
+      <p className="fixed bottom-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        Equifax · Delivery Intelligence
       </p>
     </div>
   );

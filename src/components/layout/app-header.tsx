@@ -8,7 +8,6 @@ import { Separator } from "@/components/ui/separator";
 import { useBreadcrumb } from "@/contexts/breadcrumb-context";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
-import { GitHubStarsButton } from "@/components/animate-ui/components/buttons/github-stars";
 
 const routeLabels: Record<string, string> = {
   profile: "Profile",
@@ -55,10 +54,10 @@ export function AppHeader() {
   }
 
   return (
-    <header className="sticky top-3.75 z-30 flex h-14 items-center gap-4 bg-sidebar border border-sidebar-border rounded-lg mt-3.75 mr-3.75 shadow-sm px-6 overflow-hidden">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-card px-6 shadow-[0_1px_2px_rgba(10,13,18,0.05)]">
       <SidebarTrigger className="-ml-2" />
       <Separator orientation="vertical" className="h-6" />
-      <nav className="flex items-center gap-1.5 text-lg min-w-0">
+      <nav className="flex min-w-0 items-center gap-1.5 text-base">
         {breadcrumbs.map((crumb, i) => (
           <span key={`${crumb.label}-${i}`} className="flex items-center gap-1.5 min-w-0">
             {i > 0 && (
@@ -84,14 +83,10 @@ export function AppHeader() {
           </span>
         ))}
       </nav>
-      <AnimatedThemeToggler className="ml-auto rounded-full p-2 hover:bg-accent shrink-0" />
-      <GitHubStarsButton
-        username="DevHDI"
-        repo="my-bmad"
-        variant="ghost"
-        size="sm"
-        onClick={() => window.open("https://github.com/DevHDI/my-bmad", "_blank", "noopener,noreferrer")}
-      />
+      <span className="ml-auto hidden text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground sm:inline">
+        Enterprise Delivery
+      </span>
+      <AnimatedThemeToggler className="shrink-0 rounded-md p-2 hover:bg-accent" />
       <ScrollProgress />
     </header>
   );

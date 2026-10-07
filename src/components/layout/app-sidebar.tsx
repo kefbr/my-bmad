@@ -71,17 +71,19 @@ export function AppSidebar({ repos, showAdmin, localFsEnabled, githubEnabled }: 
   }
 
   return (
-    <Sidebar variant="floating" collapsible="icon">
-      <SidebarHeader className="border-b border-border/50 px-6 py-4 group-data-[collapsible=icon]:px-2">
-        <Link href="/" className="flex items-center gap-2">
+    <Sidebar variant="sidebar" collapsible="icon" className="border-r border-sidebar-border">
+      <SidebarHeader className="border-b border-sidebar-border px-4 py-4 group-data-[collapsible=icon]:px-2">
+        <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/logo_mybmad.png"
-            alt="MyBMAD"
-            width={32}
-            height={32}
-            className="shrink-0 rounded-lg"
+            src="/equifax-logo.svg"
+            alt="Equifax"
+            width={106}
+            height={24}
+            className="h-6 w-auto shrink-0 group-data-[collapsible=icon]:h-7 group-data-[collapsible=icon]:w-7 group-data-[collapsible=icon]:object-cover group-data-[collapsible=icon]:object-left"
           />
-          <span className="font-semibold text-lg group-data-[collapsible=icon]:hidden">MyBMAD</span>
+          <span className="border-l border-sidebar-border pl-3 text-sm font-semibold tracking-wide group-data-[collapsible=icon]:hidden">
+            MyBMAD
+          </span>
         </Link>
       </SidebarHeader>
 
@@ -102,7 +104,9 @@ export function AppSidebar({ repos, showAdmin, localFsEnabled, githubEnabled }: 
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Projects</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-[11px] font-bold uppercase tracking-[0.12em]">
+            Projects
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {repos.map((repo) => {
@@ -200,7 +204,9 @@ export function AppSidebar({ repos, showAdmin, localFsEnabled, githubEnabled }: 
           <UserMenu />
         </div>
         <div className="border-t border-border/50 pt-2 pb-1 text-center group-data-[collapsible=icon]:hidden">
-          <p className="text-xs text-muted-foreground">Made with ❤️ by Hichem</p>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+            Delivery Intelligence
+          </p>
         </div>
       </SidebarFooter>
     </Sidebar>

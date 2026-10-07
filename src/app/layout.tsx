@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { Inter } from "next/font/google";
+import { Open_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
-const inter = Inter({
+const openSans = Open_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-open-sans",
 });
 
 export const metadata: Metadata = {
-  title: "MyBMAD Dashboard",
-  description: "Visualize BMAD projects from GitHub",
+  title: "Equifax | MyBMAD",
+  description: "Equifax delivery dashboard for BMAD projects",
 };
 
 export default async function RootLayout({
@@ -26,7 +26,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${openSans.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
