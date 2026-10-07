@@ -5,6 +5,7 @@ import { parseEpics } from "./parse-epics";
 import { parseEpicFile } from "./parse-epic-file";
 import { parseStory } from "./parse-story";
 import { correlate, computeProjectStats } from "./correlate";
+import { promoteBacklogStatus } from "./delivery";
 import { loadFlowMetrics } from "./compute-flow-metrics";
 import {
   buildFileTree,
@@ -290,7 +291,20 @@ export async function getBmadProject(
 
   const correlated = correlate(sprintStatus, rawEpics, rawStories, epicStatuses);
   const epics = [...correlated.epics].sort((a, b) => compareIds(a.id, b.id));
-  const stories = correlated.stories;
+  const stories = correlated.stories.map((story) => ({
+    ...story,
+    status: promoteBacklogStatus(story.status),
+  }));
+  if (sprintStatus) {
+    const statusById = new Map(stories.map((story) => [story.id, story.status]));
+    sprintStatus = {
+      ...sprintStatus,
+      stories: sprintStatus.stories.map((entry) => ({
+        ...entry,
+        status: statusById.get(entry.id) ?? promoteBacklogStatus(entry.status),
+      })),
+    };
+  }
   const storyPathSet = new Set(storyPaths);
   const docPaths = bmadPaths.filter((p) => !storyPathSet.has(p));
   const fileTree = buildFileTree(docPaths, outputDir);
