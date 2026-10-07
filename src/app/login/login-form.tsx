@@ -93,15 +93,15 @@ export function LoginForm({ githubEnabled, registrationEnabled }: LoginFormProps
     <Card className="glass-card w-full max-w-sm">
       <CardHeader className="flex flex-col items-center text-center">
         <Image
-          src="/logo_mybmad.png"
-          alt="MyBMAD"
-          width={64}
-          height={64}
-          className="mb-2"
+          src="/equifax-logo.svg"
+          alt="Equifax"
+          width={144}
+          height={33}
+          className="mb-3 h-auto w-36"
         />
         <CardTitle className="text-2xl font-bold">MyBMAD</CardTitle>
         <CardDescription>
-          {isSignUp ? "Créer un compte" : "Connectez-vous à votre dashboard"}
+          {isSignUp ? "Créer un compte" : "Enterprise Delivery Dashboard"}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
