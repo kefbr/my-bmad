@@ -1,6 +1,10 @@
 import yaml from "js-yaml";
 import { SprintStatus, SprintStoryEntry, EpicStatus } from "./types";
-import { normalizeAlphanumericId, normalizeStoryStatus } from "./utils";
+import {
+  isNonScopeStoryName,
+  normalizeAlphanumericId,
+  normalizeStoryStatus,
+} from "./utils";
 
 function normalizeEpicStatus(raw: string | undefined): EpicStatus {
   if (!raw) return "not-started";
@@ -39,6 +43,7 @@ export function parseSprintStatus(content: string): ParsedSprintData | null {
 
         // Retrospective entries: skip before epic matching to avoid epic-N-retrospective.
         if (key.includes("retrospective")) continue;
+        if (isNonScopeStoryName(key)) continue;
 
         // Epic entries: "epic-N: status" or "epic-devops-infra: status"
         const epicMatch = key.match(/^epic-(\d+|[a-z][a-z0-9_-]*)$/i);
@@ -86,9 +91,12 @@ export function parseSprintStatus(content: string): ParsedSprintData | null {
     if (Array.isArray(rawStories)) {
       for (const s of rawStories) {
         if (typeof s === "object" && s !== null) {
+          const id = String(s.id || s.story_id || s.name || "");
+          const title = String(s.title || s.name || s.id || "");
+          if (isNonScopeStoryName(id) || isNonScopeStoryName(title)) continue;
           stories.push({
-            id: String(s.id || s.story_id || s.name || ""),
-            title: String(s.title || s.name || s.id || ""),
+            id,
+            title,
             status: normalizeStoryStatus(String(s.status || "")),
             epicId: s.epic_id ? String(s.epic_id) : s.epic ? String(s.epic) : undefined,
           });

@@ -98,6 +98,23 @@ development_status:
       ]);
     });
 
+    it("ignores review notes that look like stories", () => {
+      const content = `
+development_status:
+  1-1-real-story: done
+  diff-3-condensado: done
+  diff-4-review-pack: done
+  pr-3-draft: done
+  pr-4-description: done
+  pr-99-scratch: done
+  spec-1-1-not-a-story: done
+`;
+      const result = parseSprintStatus(content);
+      expect(result!.sprintStatus.stories.map((story) => story.id)).toEqual([
+        "1.1",
+      ]);
+    });
+
     it("skips alphanumeric retrospective epic entries", () => {
       const content = `
 development_status:

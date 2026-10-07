@@ -6,7 +6,12 @@ import { parseEpicFile } from "./parse-epic-file";
 import { parseStory } from "./parse-story";
 import { correlate, computeProjectStats } from "./correlate";
 import { loadFlowMetrics } from "./compute-flow-metrics";
-import { buildFileTree, compareIds, normalizeStoryStatus } from "./utils";
+import {
+  buildFileTree,
+  compareIds,
+  isNonScopeStoryName,
+  normalizeStoryStatus,
+} from "./utils";
 import { resolveBmadOutputDir } from "./parse-config";
 import { parseEpicFolderName } from "./parse-epic-folder";
 import type { RepoConfig } from "@/lib/types";
@@ -123,6 +128,7 @@ export async function getBmadProject(
     const filename = p.split("/").pop() || "";
     if (/^epic[-_]/i.test(filename)) return false;
     if (/^bmad[-_]/i.test(filename)) return false;
+    if (isNonScopeStoryName(filename)) return false;
     if (/^\d+-\d+-.+\.md$/.test(filename)) return true;
     if (/^[a-z][a-z0-9_-]*-\d+-.+\.md$/i.test(filename)) return true;
     if (/^story[_-]?\d/i.test(filename)) return true;
