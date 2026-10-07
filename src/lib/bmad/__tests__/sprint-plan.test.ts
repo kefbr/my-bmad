@@ -88,6 +88,23 @@ describe("cockpit sprint plan", () => {
     expect(buckets[2].percent).toBe(0);
   });
 
+  it("drops review notes from sprint totals", () => {
+    const buckets = buildCockpitSprints(
+      [
+        story("2.2", "done"),
+        story("diff.3", "done"),
+        story("diff.4", "done"),
+        story("pr.3", "done"),
+        story("pr.4", "done"),
+        story("pr.99", "done"),
+      ],
+      "2026-10-06",
+    );
+    const listed = buckets.flatMap((bucket) => bucket.stories.map((item) => item.id));
+    expect(listed).toEqual(["2.2"]);
+    expect(buckets.reduce((sum, bucket) => sum + bucket.done, 0)).toBe(1);
+  });
+
   it("does not let cancelled stories change the completion percent", () => {
     const buckets = buildCockpitSprints(
       [story("2.2", "done"), story("2.3", "cancelled")],

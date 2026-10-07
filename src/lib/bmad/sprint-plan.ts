@@ -1,4 +1,5 @@
 import type { SprintStoryEntry, StoryStatus } from "./types";
+import { isNonScopeStoryName } from "./utils";
 
 /** Monday of sprint 1. The next sprint starts on the Monday two weeks later. */
 export const COCKPIT_PROJECT_START = "2026-09-07";
@@ -208,6 +209,9 @@ export function buildCockpitSprints(
   for (const definition of definitions) grouped.set(definition.number, []);
 
   for (const story of stories) {
+    if (isNonScopeStoryName(story.id) || isNonScopeStoryName(story.title)) {
+      continue;
+    }
     const number = sprintNumberForStory(story.id);
     const bucket = grouped.get(number) ?? grouped.get(COCKPIT_SPRINT_COUNT)!;
     bucket.push(story);

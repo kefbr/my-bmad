@@ -77,6 +77,18 @@ export function normalizeAlphanumericId(raw: string): string {
   return raw.trim().toLowerCase().replace(/\//g, "-");
 }
 
+/**
+ * Review notes, specs and PR drafts that live next to real stories.
+ * They are not scope items and must not change story totals.
+ */
+const NON_SCOPE_STORY_NAME =
+  /^(?:spec|diff|pr|review|patch)(?:-|\.|$)/i;
+
+export function isNonScopeStoryName(name: string): boolean {
+  const base = (name.split("/").pop() ?? name).replace(/\.md$/i, "");
+  return NON_SCOPE_STORY_NAME.test(base);
+}
+
 export function compareIds(a: string, b: string): number {
   return a.localeCompare(b, undefined, {
     numeric: true,
