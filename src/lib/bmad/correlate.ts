@@ -1,5 +1,5 @@
 import { BmadProject, Epic, SprintStatus, StoryDetail, EpicStatus } from "./types";
-import { isNonScopeStoryName } from "./utils";
+import { activeDeliveryStatuses } from "./delivery";
 
 /**
  * Convert a sprint-status slug like "1-1-project-initialization" into
@@ -143,20 +143,14 @@ export function computeProjectStats(
   inProgressStories: number;
   progressPercent: number;
 } {
-  const inScope = (id: string, title?: string) =>
-    !isNonScopeStoryName(id) && !isNonScopeStoryName(title ?? "");
-  const sprintActive =
-    project.sprintStatus?.stories.filter(
-      (s) => s.status !== "cancelled" && inScope(s.id, s.title),
-    ).length ?? 0;
-  const scopedStories = project.stories.filter(
-    (s) => s.status !== "cancelled" && inScope(s.id, s.title),
+  const statuses = activeDeliveryStatuses(
+    project.sprintStatus?.stories,
+    project.stories,
   );
-  const storyActive = scopedStories.length;
-  const total = Math.max(storyActive, sprintActive);
-  const completed = scopedStories.filter((s) => s.status === "done").length;
-  const inProgress = scopedStories.filter(
-    (s) => s.status === "in-progress",
+  const total = statuses.length;
+  const completed = statuses.filter((status) => status === "done").length;
+  const inProgress = statuses.filter(
+    (status) => status === "in-progress",
   ).length;
 
   return {

@@ -10,7 +10,8 @@ import {
   Turtle,
   Rabbit,
 } from "lucide-react";
-import type { FlowMetrics, SprintStatus } from "@/lib/bmad/types";
+import { activeDeliveryStatuses } from "@/lib/bmad/delivery";
+import type { FlowMetrics, SprintStatus, StoryStatus } from "@/lib/bmad/types";
 
 interface VelocityMetricsProps {
   sprintStatus: SprintStatus | null;
@@ -77,15 +78,20 @@ export function VelocityMetrics({
 }: VelocityMetricsProps) {
   if (!sprintStatus) return null;
 
-  const stories = sprintStatus.stories.filter((s) => s.status !== "cancelled");
+  const stories: StoryStatus[] = activeDeliveryStatuses(
+    sprintStatus.stories,
+    [],
+  );
   const totalStories = stories.length;
-  const doneCount = stories.filter((s) => s.status === "done").length;
+  const doneCount = stories.filter((status) => status === "done").length;
   const wipCount = stories.filter(
-    (s) => s.status === "in-progress" || s.status === "review",
+    (status) => status === "in-progress" || status === "review",
   ).length;
-  const blockedCount = stories.filter((s) => s.status === "blocked").length;
-  const readyCount = stories.filter((s) => s.status === "ready-for-dev").length;
-  const backlogCount = stories.filter((s) => s.status === "backlog").length;
+  const blockedCount = stories.filter((status) => status === "blocked").length;
+  const readyCount = stories.filter(
+    (status) => status === "ready-for-dev",
+  ).length;
+  const backlogCount = stories.filter((status) => status === "backlog").length;
 
   const sample = flowMetrics?.sampleSize ?? 0;
   const hasTiming = sample > 0;
@@ -267,14 +273,14 @@ export function VelocityMetrics({
             title="Ready for dev"
             value={readyCount}
             icon={Gauge}
-            description="Queued for build"
+            description="Includes the former backlog"
             color="info"
             footnote={
               <>
-                Enough for the current sprint —{" "}
+                Unstarted stories stay ready. Enough for the sprint —{" "}
                 <MarketNote
                   href={SCRUM_GUIDE}
-                  title="Scrum Guide: the Sprint Backlog is the plan for the current Sprint. There is no published market count for a ready queue."
+                  title="Scrum Guide: the Sprint Backlog is the plan for the current Sprint. Stories that were backlog are counted here as ready for dev."
                 >
                   Scrum Guide
                 </MarketNote>
@@ -288,14 +294,14 @@ export function VelocityMetrics({
             title="Backlog"
             value={backlogCount}
             icon={Gauge}
-            description="Not started"
+            description="Moved to ready for dev"
             color="primary"
             footnote={
               <>
-                No fixed market size; keep it ordered —{" "}
+                This queue stays empty by policy —{" "}
                 <MarketNote
                   href={SCRUM_GUIDE}
-                  title="Scrum Guide: the Product Backlog is an ordered list. There is no published standard length."
+                  title="Scrum Guide: the Product Backlog is an ordered list. In this dashboard those stories are shown as ready for dev, so this count stays at zero."
                 >
                   Scrum Guide
                 </MarketNote>

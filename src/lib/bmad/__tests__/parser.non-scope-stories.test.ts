@@ -73,4 +73,50 @@ describe("getBmadProject non-scope artifacts", () => {
       project!.sprintStatus?.stories.filter((story) => story.status === "done"),
     ).toHaveLength(1);
   });
+
+  it("matches completed with sprint done and promotes backlog to ready for dev", async () => {
+    const project = await getBmadProject(
+      REPO,
+      provider({
+        "_bmad-output/planning-artifacts/epics.md": [
+          "## Epic 1: Access",
+          "- Story 1.1 - Login",
+          "- Story 1.2 - Roles",
+        ].join("\n"),
+        "_bmad-output/implementation-artifacts/sprint-status.yaml": [
+          "development_status:",
+          "  epic-1: in-progress",
+          "  1-1-login: done",
+          "  1-2-roles: backlog",
+        ].join("\n"),
+        "_bmad-output/implementation-artifacts/1-1-login.md": [
+          "# Login",
+          "Status: done",
+        ].join("\n"),
+        "_bmad-output/implementation-artifacts/1-2-roles.md": [
+          "# Roles",
+          "Status: backlog",
+        ].join("\n"),
+        "_bmad-output/implementation-artifacts/9-9-orphan.md": [
+          "# Orphan",
+          "Status: done",
+        ].join("\n"),
+      }),
+    );
+
+    expect(project).not.toBeNull();
+    expect(project!.completedStories).toBe(1);
+    expect(project!.totalStories).toBe(2);
+    expect(
+      project!.sprintStatus?.stories.filter((story) => story.status === "done"),
+    ).toHaveLength(1);
+    expect(project!.stories.find((story) => story.id === "1.2")?.status).toBe(
+      "ready-for-dev",
+    );
+    expect(
+      project!.sprintStatus?.stories.find((story) => story.id === "1.2")
+        ?.status,
+    ).toBe("ready-for-dev");
+    expect(project!.stories.some((story) => story.id === "9.9")).toBe(true);
+  });
 });
