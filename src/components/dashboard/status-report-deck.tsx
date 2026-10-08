@@ -1,124 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import deck from "@/lib/status-report/deck.json";
+import { slides } from "@/lib/status-report/content";
+import type { SlideRef } from "@/lib/status-report/content";
 import { Button } from "@/components/ui/button";
 
-interface Run {
-  t?: string;
-  br?: boolean;
-  sz?: number;
-  b?: boolean;
-  color?: string;
-}
-
-interface Paragraph {
-  align: string;
-  runs: Run[];
-}
-
-interface SlideShape {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  fill?: string;
-  rot?: number;
-  anchor?: string;
-  image?: string;
-  fit?: string;
-  text?: Paragraph[];
-}
-
-interface Slide {
-  number: number;
-  title: string;
-  shapes: SlideShape[];
-}
-
-const slides = deck.slides as Slide[];
-
-const ALIGN: Record<string, "left" | "center" | "right" | "justify"> = {
-  l: "left",
-  ctr: "center",
-  r: "right",
-  just: "justify",
-};
-
-function justify(anchor?: string): "flex-start" | "center" | "flex-end" {
-  if (anchor === "ctr") return "center";
-  if (anchor === "b") return "flex-end";
-  return "flex-start";
-}
-
-export function StatusSlide({ slide }: { slide: Slide }) {
+export function StatusSlide({ slide }: { slide: SlideRef }) {
   return (
     <div
       className="relative w-full overflow-hidden bg-[#222239]"
-      style={{ aspectRatio: "16 / 9", containerType: "size" }}
-      aria-label={`Slide ${slide.number}: ${slide.title}`}
+      style={{ aspectRatio: "16 / 9" }}
     >
-      {slide.shapes.map((shape, index) => (
-        <div
-          key={index}
-          style={{
-            position: "absolute",
-            left: `${shape.x}%`,
-            top: `${shape.y}%`,
-            width: `${shape.w}%`,
-            height: `${shape.h}%`,
-            background: shape.fill,
-            transform: shape.rot ? `rotate(${shape.rot}deg)` : undefined,
-            display: shape.text ? "flex" : undefined,
-            flexDirection: "column",
-            justifyContent: justify(shape.anchor),
-            overflow: shape.fill ? "hidden" : "visible",
-            fontFamily: "Arial, Helvetica, sans-serif",
-            lineHeight: 1.05,
-          }}
-        >
-          {shape.image && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={shape.image}
-              alt=""
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: shape.fit === "cover" ? "cover" : "contain",
-              }}
-            />
-          )}
-          {shape.text?.map((paragraph, paragraphIndex) => (
-            <p
-              key={paragraphIndex}
-              style={{
-                margin: 0,
-                textAlign: ALIGN[paragraph.align] ?? "left",
-                whiteSpace: "pre-wrap",
-              }}
-            >
-              {paragraph.runs.map((run, runIndex) =>
-                run.br ? (
-                  <br key={runIndex} />
-                ) : (
-                  <span
-                    key={runIndex}
-                    style={{
-                      fontSize: `calc(${run.sz ?? 1200} / 540 * 1cqh)`,
-                      fontWeight: run.b ? 700 : 400,
-                      color: run.color,
-                    }}
-                  >
-                    {run.t}
-                  </span>
-                ),
-              )}
-            </p>
-          ))}
-        </div>
-      ))}
+      <Image
+        src={slide.image}
+        alt={`Slide ${slide.number}: ${slide.title}`}
+        width={1920}
+        height={1080}
+        unoptimized
+        priority={slide.number === 1}
+        className="h-full w-full object-contain"
+      />
     </div>
   );
 }
@@ -130,7 +33,10 @@ export function StatusReportDeck() {
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null;
-      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) {
+      if (
+        target &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA")
+      ) {
         return;
       }
       if (event.key === "ArrowRight") {

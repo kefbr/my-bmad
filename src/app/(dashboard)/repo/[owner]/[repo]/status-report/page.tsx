@@ -22,8 +22,8 @@ export default async function StatusReportPage({ params }: StatusReportPageProps
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Status Report</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Apresentação de 08/10/2026, com as cores e os dados do status
-          semanal. As setas do teclado trocam o slide.
+          Apresentação de 08/10/2026, igual ao PowerPoint. As setas do teclado
+          trocam o slide.
         </p>
       </div>
       <StatusReportDeck />
