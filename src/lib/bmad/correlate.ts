@@ -75,11 +75,17 @@ export function correlate(
     }
   }
 
+  // A story counts for one epic only. An epic body may cite stories of other
+  // epics as dependencies; those citations must not enter its totals.
+  const epicIds = new Set(epics.map((epic) => epic.id));
+  const ownerEpicId = (story: StoryDetail): string | undefined => {
+    if (story.epicId && epicIds.has(story.epicId)) return story.epicId;
+    return epics.find((epic) => epic.stories.includes(story.id))?.id;
+  };
+
   const enrichedEpics = epics.map((epic) => {
     const epicStories = mutableStories.filter(
-      (s) =>
-        (s.epicId === epic.id || epic.stories.includes(s.id)) &&
-        s.status !== "cancelled",
+      (s) => ownerEpicId(s) === epic.id && s.status !== "cancelled",
     );
     const completed = epicStories.filter((s) => s.status === "done").length;
     const total = epicStories.length;
