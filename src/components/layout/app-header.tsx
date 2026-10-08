@@ -15,6 +15,7 @@ const routeLabels: Record<string, string> = {
   epics: "Epics",
   stories: "Stories",
   docs: "Library",
+  "status-report": "Status Report",
 };
 
 function getRouteLabel(segment: string): string {

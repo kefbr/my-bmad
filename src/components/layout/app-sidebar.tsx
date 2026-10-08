@@ -13,6 +13,7 @@ import {
   Map,
   BookOpen,
   FileText,
+  Presentation,
   Shield,
   PlusIcon,
 } from "lucide-react";
@@ -49,6 +50,7 @@ const projectTabs = [
   { label: "Epics", segment: "epics", icon: Map },
   { label: "Stories", segment: "stories", icon: BookOpen },
   { label: "Library", segment: "docs", icon: FileText },
+  { label: "Status Report", segment: "status-report", icon: Presentation },
 ];
 
 export function AppSidebar({ repos, showAdmin, localFsEnabled, githubEnabled }: AppSidebarProps) {
