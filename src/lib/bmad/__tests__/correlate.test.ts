@@ -244,6 +244,31 @@ describe("correlate", () => {
     expect(result.epics[0].progressPercent).toBe(100);
   });
 
+  it("does not count stories that another epic body only cites", () => {
+    const stories = [
+      makeStory({ id: "8.4", epicId: "8", status: "done" }),
+      makeStory({ id: "8.5", epicId: "8", status: "done" }),
+      makeStory({ id: "9.1", epicId: "9", status: "backlog" }),
+      makeStory({ id: "11.4", epicId: "11", status: "backlog" }),
+      makeStory({ id: "11.10", epicId: "11", status: "done" }),
+    ];
+    const epics = [
+      makeEpic({ id: "8", stories: ["8.4", "11.4"] }),
+      makeEpic({ id: "9", stories: ["9.1", "11.10"] }),
+      makeEpic({ id: "11", stories: [] }),
+    ];
+
+    const result = correlate(null, epics, stories);
+    const byId = new Map(result.epics.map((epic) => [epic.id, epic]));
+
+    expect(byId.get("8")?.totalStories).toBe(2);
+    expect(byId.get("8")?.progressPercent).toBe(100);
+    expect(byId.get("9")?.totalStories).toBe(1);
+    expect(byId.get("9")?.completedStories).toBe(0);
+    expect(byId.get("11")?.totalStories).toBe(2);
+    expect(byId.get("11")?.completedStories).toBe(1);
+  });
+
   it("keeps story files that are not explicitly listed in an epic body", () => {
     const stories = [
       makeStory({ id: "4.1", epicId: "4", status: "done" }),
