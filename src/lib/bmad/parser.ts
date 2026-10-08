@@ -5,7 +5,7 @@ import { parseEpics } from "./parse-epics";
 import { parseEpicFile } from "./parse-epic-file";
 import { parseStory } from "./parse-story";
 import { correlate, computeProjectStats } from "./correlate";
-import { promoteBacklogStatus } from "./delivery";
+import { promoteBacklogStatus, resolveDeliveryStatus } from "./delivery";
 import { loadFlowMetrics } from "./compute-flow-metrics";
 import {
   cockpitSprintDefinitions,
@@ -295,20 +295,23 @@ export async function getBmadProject(
 
   const correlated = correlate(sprintStatus, rawEpics, rawStories, epicStatuses);
   const epics = [...correlated.epics].sort((a, b) => compareIds(a.id, b.id));
-  const stories = correlated.stories.map((story) => ({
+  const storiesWithStatus = correlated.stories.map((story) => ({
     ...story,
     status: promoteBacklogStatus(story.status),
   }));
   if (sprintStatus) {
-    const statusById = new Map(stories.map((story) => [story.id, story.status]));
+    const statusById = new Map(
+      storiesWithStatus.map((story) => [story.id, story.status]),
+    );
     sprintStatus = {
       ...sprintStatus,
       stories: sprintStatus.stories.map((entry) => ({
         ...entry,
-        status: statusById.get(entry.id) ?? promoteBacklogStatus(entry.status),
+        status: resolveDeliveryStatus(entry.status, statusById.get(entry.id)),
       })),
     };
   }
+  const stories = storiesWithStatus.filter((story) => story.status !== "cancelled");
   const storyPathSet = new Set(storyPaths);
   const docPaths = bmadPaths.filter((p) => !storyPathSet.has(p));
   const fileTree = buildFileTree(docPaths, outputDir);

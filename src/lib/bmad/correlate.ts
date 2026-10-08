@@ -35,11 +35,14 @@ export function correlate(
   // sprint-status.yaml is only used as a fallback when the story markdown
   // declared no explicit status (statusExplicit !== true), and to populate
   // stubs for stories that exist only in sprint-status.
+  // Cancelled is the exception: either side withdraws the story from totals.
   if (sprintStatus) {
     for (const entry of sprintStatus.stories) {
       const story = storyMap.get(entry.id);
       if (story) {
-        if (story.statusExplicit !== true && entry.status !== "unknown") {
+        if (entry.status === "cancelled" || story.status === "cancelled") {
+          story.status = "cancelled";
+        } else if (story.statusExplicit !== true && entry.status !== "unknown") {
           story.status = entry.status;
         }
         if (!story.epicId && entry.epicId) {
