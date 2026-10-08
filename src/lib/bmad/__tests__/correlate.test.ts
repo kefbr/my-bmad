@@ -183,6 +183,67 @@ describe("correlate", () => {
     expect(result.epics[0].completedStories).toBe(1);
   });
 
+  it("drops cancelled epic stories from the total and the percent", () => {
+    const stories = [
+      makeStory({ id: "8.1", epicId: "8", status: "done", statusExplicit: true }),
+      makeStory({ id: "8.2", epicId: "8", status: "done", statusExplicit: true }),
+      makeStory({ id: "8.3", epicId: "8", status: "done", statusExplicit: true }),
+      makeStory({ id: "8.4", epicId: "8", status: "backlog" }),
+    ];
+    const epics = [
+      makeEpic({
+        id: "8",
+        stories: ["8.1", "8.2", "8.3", "8.4"],
+      }),
+    ];
+    const sprint: SprintStatus = {
+      stories: [
+        { id: "8.1", title: "8-1-keep", status: "done", epicId: "8" },
+        { id: "8.2", title: "8-2-withdrawn", status: "cancelled", epicId: "8" },
+        { id: "8.3", title: "8-3-withdrawn", status: "cancelled", epicId: "8" },
+        { id: "8.4", title: "8-4-open", status: "backlog", epicId: "8" },
+      ],
+    };
+
+    const result = correlate(sprint, epics, stories);
+    const epic = result.epics[0];
+
+    expect(result.stories.find((story) => story.id === "8.2")?.status).toBe(
+      "cancelled",
+    );
+    expect(result.stories.find((story) => story.id === "8.3")?.status).toBe(
+      "cancelled",
+    );
+    expect(epic.totalStories).toBe(2);
+    expect(epic.completedStories).toBe(1);
+    expect(epic.progressPercent).toBe(50);
+  });
+
+  it("keeps a markdown cancellation out of the epic even when sprint says done", () => {
+    const stories = [
+      makeStory({
+        id: "8.2",
+        epicId: "8",
+        status: "cancelled",
+        statusExplicit: true,
+      }),
+      makeStory({ id: "8.4", epicId: "8", status: "done" }),
+    ];
+    const epics = [makeEpic({ id: "8", stories: ["8.2", "8.4"] })];
+    const sprint: SprintStatus = {
+      stories: [
+        { id: "8.2", title: "8-2-withdrawn", status: "done", epicId: "8" },
+        { id: "8.4", title: "8-4-open", status: "done", epicId: "8" },
+      ],
+    };
+
+    const result = correlate(sprint, epics, stories);
+
+    expect(result.epics[0].totalStories).toBe(1);
+    expect(result.epics[0].completedStories).toBe(1);
+    expect(result.epics[0].progressPercent).toBe(100);
+  });
+
   it("keeps story files that are not explicitly listed in an epic body", () => {
     const stories = [
       makeStory({ id: "4.1", epicId: "4", status: "done" }),

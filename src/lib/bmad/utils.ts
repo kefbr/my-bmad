@@ -8,7 +8,16 @@ export function normalizeStoryStatus(raw: string | undefined): StoryStatus {
   if (!raw) return "backlog";
   const s = raw.toLowerCase().trim();
   if (s === "done" || s === "complete" || s === "completed") return "done";
-  if (s === "cancelled" || s === "canceled") return "cancelled";
+  if (
+    /^cancel/.test(s) ||
+    s === "wont-do" ||
+    s === "won't-do" ||
+    s === "wont do" ||
+    s === "superseded" ||
+    s === "descoped"
+  ) {
+    return "cancelled";
+  }
   if (s.includes("progress") || s === "started") return "in-progress";
   if (s === "review" || s.includes("review")) return "review";
   if (s === "blocked") return "blocked";

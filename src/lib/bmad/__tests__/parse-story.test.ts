@@ -111,6 +111,9 @@ epic_id: DevOps/Infra
     it("normalizes 'backlog'", () => testStatus("backlog", "backlog"));
     it("normalizes 'todo'", () => testStatus("todo", "backlog"));
     it("normalizes 'pending'", () => testStatus("pending", "backlog"));
+    it("normalizes 'cancelled'", () => testStatus("cancelled", "cancelled"));
+    it("normalizes 'cancelado'", () => testStatus("cancelado", "cancelled"));
+    it("normalizes 'wont-do'", () => testStatus("wont-do", "cancelled"));
   });
 
   describe("description truncation", () => {
