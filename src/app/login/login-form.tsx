@@ -96,7 +96,7 @@ export function LoginForm({ githubEnabled, registrationEnabled }: LoginFormProps
           src="/equifax-logo.svg"
           alt="Equifax"
           width={144}
-          height={33}
+          height={28}
           className="mb-3 h-auto w-36"
         />
         <CardTitle className="text-2xl font-bold">MyBMAD</CardTitle>

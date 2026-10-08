@@ -79,7 +79,7 @@ export function AppSidebar({ repos, showAdmin, localFsEnabled, githubEnabled }: 
           <Image
             src="/equifax-logo.svg"
             alt="Equifax"
-            width={106}
+            width={122}
             height={24}
             className="h-6 w-auto shrink-0 group-data-[collapsible=icon]:h-7 group-data-[collapsible=icon]:w-7 group-data-[collapsible=icon]:object-cover group-data-[collapsible=icon]:object-left"
           />

@@ -8,6 +8,10 @@ import { correlate, computeProjectStats } from "./correlate";
 import { promoteBacklogStatus } from "./delivery";
 import { loadFlowMetrics } from "./compute-flow-metrics";
 import {
+  cockpitSprintDefinitions,
+  usesCockpitSprintPlan,
+} from "./sprint-plan";
+import {
   buildFileTree,
   compareIds,
   isNonScopeStoryName,
@@ -334,9 +338,16 @@ export async function getBmadProject(
     docsFolderName,
   });
 
+  const sprintWindows =
+    sprintStatus &&
+    usesCockpitSprintPlan({ owner, repo, stories: sprintStatus.stories })
+      ? cockpitSprintDefinitions()
+      : undefined;
   const flowMetrics = await loadFlowMetrics(
     provider.getFileRevisions?.bind(provider),
     sprintStatusPath,
+    sprintWindows ? 100 : 80,
+    sprintWindows,
   );
 
   return {

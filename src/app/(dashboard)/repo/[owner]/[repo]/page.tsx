@@ -6,6 +6,7 @@ import { ProjectStatsGrid } from "@/components/dashboard/project-stats-grid";
 import { EpicsList } from "@/components/dashboard/epics-list";
 import { VelocityMetrics } from "@/components/dashboard/velocity-metrics";
 import { SprintPlanBoard } from "@/components/dashboard/sprint-plan-board";
+import { SprintFlowCharts } from "@/components/dashboard/sprint-flow-charts";
 import {
   buildCockpitSprints,
   formatSprintDate,
@@ -164,6 +165,12 @@ export default async function RepoOverviewPage({ params }: RepoPageProps) {
             sprintStatus={project.sprintStatus}
             flowMetrics={project.flowMetrics}
           />
+          {project.flowMetrics?.sprints && (
+            <SprintFlowCharts
+              points={project.flowMetrics.sprints}
+              historyStartsAt={project.flowMetrics.historyStartsAt}
+            />
+          )}
         </section>
       )}
 

@@ -116,6 +116,27 @@ export interface FlowMetrics {
   throughput7d: number;
   /** Observed completions divided by observed weeks of history. */
   velocityPerWeek: number | null;
+  /** Per-sprint evolution. Present only when the project has a sprint calendar. */
+  sprints?: SprintFlowPoint[];
+  /** First sprint-status.yaml revision found in history (ISO). */
+  historyStartsAt?: string | null;
+}
+
+export interface SprintFlowPoint {
+  number: number;
+  startDate: string;
+  endDate: string;
+  /** False for future sprints and for sprints that ended before history begins. */
+  observed: boolean;
+  /** True for the running sprint or when history begins inside the sprint. */
+  partial: boolean;
+  completed: number;
+  velocityPerWeek: number | null;
+  averageCycleMs: number | null;
+  averageLeadMs: number | null;
+  /** In-progress plus review stories at the last revision of the sprint. */
+  wipAtEnd: number | null;
+  blockedAtEnd: number | null;
 }
 
 export interface BmadProject {
