@@ -167,6 +167,27 @@ development_status:
       expect(result!.sprintStatus.startDate).toBe("2026-01-01");
       expect(result!.sprintStatus.endDate).toBe("2026-01-14");
     });
+
+    it("reads sprint_assignment without turning it into stories", () => {
+      const content = `
+development_status:
+  6-6-aplicar-contingencia-por-e-mail: backlog
+sprint_assignment:
+  unassigned_sprint: 7
+  epics:
+    "6": 7
+  stories:
+    "2.4": 2
+`;
+      const result = parseSprintStatus(content);
+      expect(result).not.toBeNull();
+      expect(result!.sprintStatus.stories.map((story) => story.id)).toEqual(["6.6"]);
+      expect(result!.sprintAssignment).toEqual({
+        epics: { "6": 7 },
+        stories: { "2.4": 2 },
+        unassignedSprint: 7,
+      });
+    });
   });
 
   describe("error handling", () => {

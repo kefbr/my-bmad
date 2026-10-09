@@ -25,6 +25,13 @@ export interface SprintStoryEntry {
   epicId?: string;
 }
 
+/** Story-to-sprint map declared by the project in sprint-status.yaml. */
+export interface SprintAssignment {
+  epics: Record<string, number>;
+  stories: Record<string, number>;
+  unassignedSprint: number;
+}
+
 export interface Epic {
   id: string;
   title: string;
@@ -145,6 +152,8 @@ export interface BmadProject {
   branch: string;
   displayName: string;
   sprintStatus: SprintStatus | null;
+  /** Present when the project declares sprint_assignment in sprint-status.yaml. */
+  sprintAssignment?: SprintAssignment | null;
   epics: Epic[];
   stories: StoryDetail[];
   fileTree: FileTreeNode[];

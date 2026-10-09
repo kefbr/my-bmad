@@ -1,5 +1,5 @@
 import yaml from "js-yaml";
-import { SprintStatus, SprintStoryEntry, EpicStatus } from "./types";
+import { SprintStatus, SprintStoryEntry, EpicStatus, SprintAssignment } from "./types";
 import {
   isNonScopeStoryName,
   normalizeAlphanumericId,
@@ -14,6 +14,45 @@ function normalizeEpicStatus(raw: string | undefined): EpicStatus {
   return "not-started";
 }
 
+function positiveInteger(value: unknown): number | null {
+  const number = typeof value === "number" ? value : Number(value);
+  return Number.isInteger(number) && number > 0 ? number : null;
+}
+
+function parseSprintAssignment(
+  data: Record<string, unknown>,
+): SprintAssignment | null {
+  const raw = data.sprint_assignment;
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const block = raw as Record<string, unknown>;
+  const epics: Record<string, number> = {};
+  const stories: Record<string, number> = {};
+  if (block.epics && typeof block.epics === "object" && !Array.isArray(block.epics)) {
+    for (const [key, value] of Object.entries(block.epics)) {
+      const sprint = positiveInteger(value);
+      if (sprint) epics[String(key)] = sprint;
+    }
+  }
+  if (
+    block.stories &&
+    typeof block.stories === "object" &&
+    !Array.isArray(block.stories)
+  ) {
+    for (const [key, value] of Object.entries(block.stories)) {
+      const sprint = positiveInteger(value);
+      if (sprint) stories[String(key)] = sprint;
+    }
+  }
+  if (Object.keys(epics).length === 0 && Object.keys(stories).length === 0) {
+    return null;
+  }
+  return {
+    epics,
+    stories,
+    unassignedSprint: positiveInteger(block.unassigned_sprint) ?? 11,
+  };
+}
+
 export interface SprintEpicEntry {
   id: string;
   status: EpicStatus;
@@ -22,6 +61,7 @@ export interface SprintEpicEntry {
 export interface ParsedSprintData {
   sprintStatus: SprintStatus;
   epicStatuses: SprintEpicEntry[];
+  sprintAssignment: SprintAssignment | null;
 }
 
 export function parseSprintStatus(content: string): ParsedSprintData | null {
@@ -112,7 +152,7 @@ export function parseSprintStatus(content: string): ParsedSprintData | null {
       stories,
     };
 
-    return { sprintStatus, epicStatuses };
+    return { sprintStatus, epicStatuses, sprintAssignment: parseSprintAssignment(data) };
   } catch (e) {
     console.error("Failed to parse sprint status YAML:", e);
     return null;

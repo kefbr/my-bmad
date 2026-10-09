@@ -190,6 +190,7 @@ export async function getBmadProject(
   let totalFiles = 0;
 
   let sprintStatus = null;
+  let sprintAssignment: import("./types").SprintAssignment | null = null;
   let epicStatuses: { id: string; status: import("./types").EpicStatus }[] = [];
   let rawEpics: import("./types").Epic[] = [];
   const rawStories: NonNullable<ReturnType<typeof parseStory>>[] = [];
@@ -224,6 +225,7 @@ export async function getBmadProject(
       if (parsed) {
         sprintStatus = parsed.sprintStatus;
         epicStatuses = parsed.epicStatuses;
+        sprintAssignment = parsed.sprintAssignment;
       } else {
         parseErrors.push({ file: sprintStatusPath!, error: "Failed to parse sprint status YAML. Check the file syntax.", contentType: "sprint-status" });
       }
@@ -359,6 +361,7 @@ export async function getBmadProject(
     branch,
     displayName,
     sprintStatus,
+    sprintAssignment,
     epics,
     stories,
     fileTree,

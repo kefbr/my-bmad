@@ -73,7 +73,11 @@ export default async function RepoOverviewPage({ params }: RepoPageProps) {
       repo: repoName,
       stories: project.sprintStatus.stories,
     })
-      ? buildCockpitSprints(project.sprintStatus.stories, today)
+      ? buildCockpitSprints(
+          project.sprintStatus.stories,
+          today,
+          project.sprintAssignment,
+        )
       : null;
   const currentSprint = sprintPlan?.find(
     (sprint) => sprint.calendarState === "current",
