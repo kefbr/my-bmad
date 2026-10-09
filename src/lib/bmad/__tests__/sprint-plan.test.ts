@@ -66,6 +66,24 @@ describe("cockpit sprint plan", () => {
     expect(sprintNumberForStory("6.6")).toBe(11);
   });
 
+  it("uses the project sprint_assignment instead of the built-in map", () => {
+    const assignment = {
+      epics: { "6": 7 },
+      stories: {},
+      unassignedSprint: 7,
+    };
+    const buckets = buildCockpitSprints(
+      [story("6.6", "backlog"), story("10.1", "backlog", "10")],
+      "2026-10-06",
+      assignment,
+    );
+
+    expect(sprintNumberForStory("6.6", assignment)).toBe(7);
+    expect(buckets[6].stories.map((item) => item.id)).toEqual(["6.6", "10.1"]);
+    expect(buckets[10].stories).toEqual([]);
+    expect(buckets[10].total).toBe(0);
+  });
+
   it("keeps the current story status inside the assigned sprint", () => {
     const buckets = buildCockpitSprints(
       [

@@ -1,4 +1,4 @@
-import type { SprintStoryEntry, StoryStatus } from "./types";
+import type { SprintAssignment, SprintStoryEntry, StoryStatus } from "./types";
 import { isNonScopeStoryName } from "./utils";
 
 /** Monday of sprint 1. The next sprint starts on the Monday two weeks later. */
@@ -90,10 +90,10 @@ const SPRINT_GOALS: { goal: string; notes: string[] }[] = [
     notes: [],
   },
   {
-    goal: "Mensagens personalizadas, fallback, e-mail por área e melhorias",
+    goal: "Reservada para histórias ainda não associadas",
     notes: [
       "A estimativa do projeto fecha em 31/01/2027, ainda dentro desta sprint.",
-      "A história 6.6 é a contingência por e-mail. Mensagem personalizada não tem história separada.",
+      "As histórias entram pelo sprint_assignment do sprint-status.yaml do projeto.",
     ],
   },
 ];
@@ -167,7 +167,16 @@ export function sprintCalendarState(
   return "current";
 }
 
-export function sprintNumberForStory(id: string): number {
+export function sprintNumberForStory(
+  id: string,
+  assignment?: SprintAssignment | null,
+): number {
+  if (assignment) {
+    const fromFile = assignment.stories[id];
+    if (fromFile) return fromFile;
+    const epicId = id.split(".")[0] ?? "";
+    return assignment.epics[epicId] ?? assignment.unassignedSprint;
+  }
   const override = SPRINT_OVERRIDE[id];
   if (override) return override;
   const epicId = id.split(".")[0] ?? "";
@@ -203,6 +212,7 @@ function compareEpicIds(a: string, b: string): number {
 export function buildCockpitSprints(
   stories: SprintStoryEntry[],
   today: string,
+  assignment?: SprintAssignment | null,
 ): SprintBucket[] {
   const definitions = cockpitSprintDefinitions();
   const grouped = new Map<number, SprintStoryEntry[]>();
@@ -212,8 +222,9 @@ export function buildCockpitSprints(
     if (isNonScopeStoryName(story.id) || isNonScopeStoryName(story.title)) {
       continue;
     }
-    const number = sprintNumberForStory(story.id);
-    const bucket = grouped.get(number) ?? grouped.get(COCKPIT_SPRINT_COUNT)!;
+    const number = sprintNumberForStory(story.id, assignment);
+    const fallbackSprint = assignment?.unassignedSprint ?? COCKPIT_SPRINT_COUNT;
+    const bucket = grouped.get(number) ?? grouped.get(fallbackSprint)!;
     bucket.push(story);
   }
 
