@@ -57,13 +57,35 @@ describe("cockpit sprint plan", () => {
     expect(sprintNumberForStory("8.10")).toBe(5);
     expect(sprintNumberForStory("8.12")).toBe(6);
     expect(sprintNumberForStory("6.5")).toBe(7);
+    expect(sprintNumberForStory("6.6")).toBe(7);
     expect(sprintNumberForStory("7.4")).toBe(8);
     expect(sprintNumberForStory("7.10")).toBe(8);
     expect(sprintNumberForStory("1.9")).toBe(9);
     expect(sprintNumberForStory("1.15")).toBe(9);
     expect(sprintNumberForStory("9.3")).toBe(10);
     expect(sprintNumberForStory("9.12")).toBe(10);
-    expect(sprintNumberForStory("6.6")).toBe(11);
+    expect(sprintNumberForStory("10.1")).toBe(7);
+  });
+
+  it("leaves sprint 11 without stories", () => {
+    const buckets = buildCockpitSprints(
+      [
+        story("6.5", "backlog"),
+        story("6.6", "backlog"),
+        story("10.1", "backlog", "10"),
+      ],
+      "2026-10-06",
+    );
+
+    expect(buckets[6].stories.map((item) => item.id)).toEqual([
+      "6.5",
+      "6.6",
+      "10.1",
+    ]);
+    expect(buckets[10].stories).toEqual([]);
+    expect(buckets[10].total).toBe(0);
+    expect(buckets[10].percent).toBe(0);
+    expect(buckets[10].definition.goal).toMatch(/ainda não definidas/i);
   });
 
   it("keeps the current story status inside the assigned sprint", () => {

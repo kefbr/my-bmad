@@ -75,7 +75,9 @@ const SPRINT_GOALS: { goal: string; notes: string[] }[] = [
   },
   {
     goal: "PagerDuty e mensagens sistêmicas",
-    notes: [],
+    notes: [
+      "A contingência por e-mail (6.6) fica com as demais histórias do épico 6.",
+    ],
   },
   {
     goal: "ServiceNow, espelho de status e SLA, lista filtrada de ocorrências",
@@ -90,10 +92,10 @@ const SPRINT_GOALS: { goal: string; notes: string[] }[] = [
     notes: [],
   },
   {
-    goal: "Mensagens personalizadas, fallback, e-mail por área e melhorias",
+    goal: "Reservada para histórias ainda não definidas",
     notes: [
       "A estimativa do projeto fecha em 31/01/2027, ainda dentro desta sprint.",
-      "A história 6.6 é a contingência por e-mail. Mensagem personalizada não tem história separada.",
+      "Nenhuma história está associada por enquanto.",
     ],
   },
 ];
@@ -108,7 +110,6 @@ const SPRINT_OVERRIDE: Record<string, number> = {
   "3.14": 4,
   "3.15": 4,
   "3.23": 4,
-  "6.6": 11,
   "8.1B": 6,
   "8.2": 6,
   "8.7B": 8,
@@ -167,11 +168,14 @@ export function sprintCalendarState(
   return "current";
 }
 
+/** Sprint that receives a story whose epic has no default. Sprint 11 stays empty until a story is assigned there. */
+const UNASSIGNED_SPRINT = 7;
+
 export function sprintNumberForStory(id: string): number {
   const override = SPRINT_OVERRIDE[id];
   if (override) return override;
   const epicId = id.split(".")[0] ?? "";
-  return EPIC_SPRINT[epicId] ?? COCKPIT_SPRINT_COUNT;
+  return EPIC_SPRINT[epicId] ?? UNASSIGNED_SPRINT;
 }
 
 export function usesCockpitSprintPlan(input: {
@@ -213,7 +217,7 @@ export function buildCockpitSprints(
       continue;
     }
     const number = sprintNumberForStory(story.id);
-    const bucket = grouped.get(number) ?? grouped.get(COCKPIT_SPRINT_COUNT)!;
+    const bucket = grouped.get(number) ?? grouped.get(UNASSIGNED_SPRINT)!;
     bucket.push(story);
   }
 
